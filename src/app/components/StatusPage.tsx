@@ -40,8 +40,8 @@ export function StatusPage({
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl text-gray-900 mb-2">Project Overview</h1>
-          <p className="text-gray-600">Your project brief is ready for download</p>
+          <h1 className="text-3xl text-gray-900 mb-2">Gator Innovation Project Overview</h1>
+          <p className="text-gray-600">Powered by OpenGig - Your project brief is ready for download</p>
         </div>
 
         {/* Project Info Card */}

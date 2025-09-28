@@ -69,7 +69,7 @@ export function ChatCompletion({ userName, onComplete }: ChatCompletionProps) {
               Thanks, {userName}!
             </h1>
             <p className="text-xl text-gray-600 mb-2">
-              We&apos;re generating your project brief
+              Gator Innovation is generating your project brief
             </p>
             <p className="text-gray-500">
               This will only take a moment...

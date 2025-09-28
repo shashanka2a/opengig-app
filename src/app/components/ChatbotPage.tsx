@@ -7,6 +7,7 @@ import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
 import { Send, Bot, User, CheckCircle, AlertCircle } from "lucide-react";
 import { motion } from "motion/react";
+import { GoogleSheetsService } from "@/lib/googleSheets";
 
 interface Message {
   id: string;
@@ -53,7 +54,7 @@ export function ChatbotPage({ formData, onFinishSession }: ChatbotPageProps) {
     },
     {
       id: "2", 
-      text: "Let&apos;s start with your target audience. Who will be the primary users of this application? Please describe their demographics, technical skill level, and main goals.",
+      text: "Let's start with your target audience. Who will be the primary users of this application? Please describe their demographics, technical skill level, and main goals.",
       sender: "bot",
       timestamp: new Date()
     }
@@ -265,10 +266,10 @@ export function ChatbotPage({ formData, onFinishSession }: ChatbotPageProps) {
     }
   };
 
-  const simulateBotResponse = (userMessage: string) => {
+  const simulateBotResponse = async (userMessage: string) => {
     setIsTyping(true);
     
-    setTimeout(() => {
+    setTimeout(async () => {
       const { response, nextTopic, data } = getPersonalizedResponse(userMessage, currentTopic);
       
       // Update collected data
@@ -289,7 +290,8 @@ export function ChatbotPage({ formData, onFinishSession }: ChatbotPageProps) {
       if (nextTopic) {
         setCurrentTopic(nextTopic);
       } else {
-        // Conversation is complete
+        // Conversation is complete - log project data
+        await logProjectData();
         setTimeout(() => {
           onFinishSession();
         }, 2000);
@@ -299,7 +301,7 @@ export function ChatbotPage({ formData, onFinishSession }: ChatbotPageProps) {
     }, 1200 + Math.random() * 800); // Variable response time for more natural feel
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
     const newMessage: Message = {
@@ -327,6 +329,39 @@ export function ChatbotPage({ formData, onFinishSession }: ChatbotPageProps) {
     return collectedData.length;
   };
 
+  const logProjectData = async () => {
+    try {
+      const clientId = GoogleSheetsService.generateClientId();
+      const projectData = {
+        clientId,
+        projectName: `${formData.company} - ${formData.projectType}`,
+        projectType: formData.projectType,
+        targetAudience: conversationData.targetAudience || 'Not specified',
+        coreFeatures: conversationData.coreFeatures || [],
+        designPreferences: conversationData.designPreferences || 'Not specified',
+        platformRequirements: conversationData.platformRequirements || [],
+        integrations: conversationData.integrations || [],
+        successMetrics: conversationData.successMetrics || 'Not specified',
+        technicalRequirements: conversationData.technicalRequirements || 'Not specified',
+        userFlow: conversationData.userFlow || 'Not specified',
+        competitorInfo: conversationData.competitorInfo || 'Not specified',
+        budget: formData.budget,
+        timeline: formData.timeline,
+        status: 'In Progress',
+        briefGenerated: false
+      };
+
+      const success = await GoogleSheetsService.logProjectData(projectData);
+      if (success) {
+        console.log('Project data logged successfully to Google Sheets');
+      } else {
+        console.warn('Failed to log project data to Google Sheets');
+      }
+    } catch (error) {
+      console.error('Error logging project data:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
@@ -337,9 +372,9 @@ export function ChatbotPage({ formData, onFinishSession }: ChatbotPageProps) {
               <Bot className="h-6 w-6 text-blue-600" />
             </div>
             <div>
-              <h1 className="text-lg text-gray-900">OpenGig Assistant</h1>
+              <h1 className="text-lg text-gray-900">Gator Innovation AI</h1>
               <p className="text-sm text-gray-500">
-                Clarifying {formData.projectType} details for {formData.company}
+                Powered by OpenGig - Clarifying {formData.projectType} details for {formData.company}
               </p>
             </div>
           </div>
@@ -352,7 +387,10 @@ export function ChatbotPage({ formData, onFinishSession }: ChatbotPageProps) {
             </div>
             {getCompletedTopicsCount() >= 3 && (
               <Button
-                onClick={onFinishSession}
+                onClick={async () => {
+                  await logProjectData();
+                  onFinishSession();
+                }}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
               >
                 Finish Session

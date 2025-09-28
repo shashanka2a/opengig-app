@@ -1,6 +1,6 @@
-# OpenGig - AI-Powered Project Briefing Platform
+# Gator Innovation - AI-Powered Project Briefing Platform
 
-A modern Next.js application that transforms project ideas into comprehensive briefs using AI-powered conversations.
+A modern Next.js application powered by OpenGig that transforms project ideas into comprehensive briefs using AI-powered conversations.
 
 ## 🚀 Features
 

@@ -5,10 +5,10 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'OpenGig - AI-Powered Project Briefing Platform',
+  title: 'Gator Innovation - AI-Powered Project Briefing Platform',
   description: 'Transform your project ideas into comprehensive briefs with our AI-powered platform. Get detailed project specifications, timelines, and deliverables.',
-  keywords: ['AI', 'project management', 'briefing', 'automation', 'productivity', 'Next.js', 'React'],
-  authors: [{ name: 'OpenGig Team' }],
+  keywords: ['AI', 'project management', 'briefing', 'automation', 'productivity', 'Next.js', 'React', 'Gator Innovation'],
+  authors: [{ name: 'Gator Innovation Team' }],
   viewport: 'width=device-width, initial-scale=1',
   robots: 'index, follow',
   icons: {
@@ -17,18 +17,18 @@ export const metadata: Metadata = {
     apple: '/favicon.svg',
   },
   openGraph: {
-    title: 'OpenGig - AI-Powered Project Briefing Platform',
+    title: 'Gator Innovation - AI-Powered Project Briefing Platform',
     description: 'Transform your project ideas into comprehensive briefs with our AI-powered platform.',
     type: 'website',
     locale: 'en_US',
-    url: 'https://opengig.app',
-    siteName: 'OpenGig',
+    url: 'https://gatorinnovation.com',
+    siteName: 'Gator Innovation',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'OpenGig - AI-Powered Project Briefing Platform',
+    title: 'Gator Innovation - AI-Powered Project Briefing Platform',
     description: 'Transform your project ideas into comprehensive briefs with our AI-powered platform.',
-    creator: '@opengig',
+    creator: '@gatorinnovation',
   },
   manifest: '/manifest.json',
 }

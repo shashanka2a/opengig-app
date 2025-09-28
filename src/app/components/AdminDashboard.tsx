@@ -1,13 +1,13 @@
 'use client'
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
-import { Search, Filter, Eye, Download, MoreHorizontal } from "lucide-react";
+import { Search, Filter, Eye, Download, MoreHorizontal, RefreshCw } from "lucide-react";
 import { motion } from "motion/react";
 
 interface Lead {
@@ -28,14 +28,40 @@ interface AdminDashboardProps {
 export function AdminDashboard({ onViewProject }: AdminDashboardProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Mock data
-  const [leads] = useState<Lead[]>([
-    {
-      id: "1",
-      name: "John Doe",
-      email: "john@acme.com",
-      company: "Acme Inc.",
+  // Fetch data from Google Sheets
+  const fetchData = async () => {
+    try {
+      setIsRefreshing(true);
+      const response = await fetch('/api/sheets/get-data?type=clients');
+      const result = await response.json();
+      
+      if (result.success && result.data.clients) {
+        // Transform Google Sheets data to Lead format
+        const transformedLeads = result.data.clients.slice(1).map((row: any[], index: number) => ({
+          id: `lead-${index + 1}`,
+          name: row[1] || 'Unknown',
+          email: row[2] || 'No email',
+          company: row[3] || 'No company',
+          projectType: row[4] || 'Unknown',
+          status: row[8] === 'New Lead' ? 'New' : row[8] === 'In Progress' ? 'In Chat' : 'Completed',
+          submittedDate: row[9] || new Date().toLocaleDateString(),
+          briefLink: row[8] === 'Brief Ready' ? `/briefs/${row[1]?.toLowerCase().replace(' ', '-')}.pdf` : undefined
+        }));
+        setLeads(transformedLeads);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      // Fallback to mock data if API fails
+      setLeads([
+        {
+          id: "1",
+          name: "John Doe",
+          email: "john@acme.com",
+          company: "Acme Inc.",
       projectType: "Web Application",
       status: "Brief Ready",
       submittedDate: "2025-01-15",
@@ -78,7 +104,17 @@ export function AdminDashboard({ onViewProject }: AdminDashboardProps) {
       submittedDate: "2025-01-12",
       briefLink: "/briefs/david-park-enterprise.pdf"
     }
-  ]);
+      ]);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
+
+  // Load data on component mount
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const filteredLeads = leads.filter(lead => {
     const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -111,8 +147,8 @@ export function AdminDashboard({ onViewProject }: AdminDashboardProps) {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl text-gray-900 mb-2">OpenGig Admin Dashboard</h1>
-          <p className="text-gray-600">Manage client onboarding and project briefs</p>
+          <h1 className="text-3xl text-gray-900 mb-2">Gator Innovation Admin Dashboard</h1>
+          <p className="text-gray-600">Powered by OpenGig - Manage client onboarding and project briefs</p>
         </div>
 
         {/* Stats Cards */}
@@ -166,6 +202,14 @@ export function AdminDashboard({ onViewProject }: AdminDashboardProps) {
               </Select>
               <Button variant="outline" className="px-3">
                 <Filter className="h-4 w-4" />
+              </Button>
+              <Button
+                onClick={fetchData}
+                disabled={isRefreshing}
+                variant="outline"
+                className="px-3"
+              >
+                <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
               </Button>
             </div>
           </div>

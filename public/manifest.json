@@ -1,7 +1,7 @@
 {
-  "name": "OpenGig - AI-Powered Project Briefing Platform",
-  "short_name": "OpenGig",
-  "description": "Transform your project ideas into comprehensive briefs with our AI-powered platform.",
+  "name": "Gator Innovation - AI-Powered Project Briefing Platform",
+  "short_name": "Gator Innovation",
+  "description": "Transform your project ideas into comprehensive briefs with our AI-powered platform powered by OpenGig.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

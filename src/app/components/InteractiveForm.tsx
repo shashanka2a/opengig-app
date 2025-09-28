@@ -10,6 +10,7 @@ import { Textarea } from "./ui/textarea";
 import { Progress } from "./ui/progress";
 import { ArrowRight, ArrowLeft, CheckCircle } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { GoogleSheetsService } from "@/lib/googleSheets";
 
 interface FormData {
   name: string;
@@ -41,8 +42,8 @@ export function InteractiveForm({ onComplete, onBack }: InteractiveFormProps) {
 
   const steps = [
     {
-      title: "Let&apos;s start with your details",
-      subtitle: "We&apos;ll use this to personalize your experience",
+      title: "Let's start with your details",
+      subtitle: "We'll use this to personalize your experience",
       fields: [
         { key: "name", label: "Full Name", type: "input", placeholder: "John Doe" },
         { key: "email", label: "Email Address", type: "input", placeholder: "john@company.com" },
@@ -118,11 +119,24 @@ export function InteractiveForm({ onComplete, onBack }: InteractiveFormProps) {
     setFormData(prev => ({ ...prev, [key]: value }));
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
       setShowConfirmation(true);
+      
+      // Log client data to Google Sheets
+      try {
+        const success = await GoogleSheetsService.logClientData(formData);
+        if (success) {
+          console.log('Client data logged successfully to Google Sheets');
+        } else {
+          console.warn('Failed to log client data to Google Sheets');
+        }
+      } catch (error) {
+        console.error('Error logging client data:', error);
+      }
+      
       setTimeout(() => {
         onComplete(formData);
       }, 2000);
@@ -154,8 +168,8 @@ export function InteractiveForm({ onComplete, onBack }: InteractiveFormProps) {
             <CheckCircle className="h-10 w-10 text-green-600" />
           </div>
           <h2 className="text-3xl mb-4 text-gray-900">Thank You!</h2>
-          <p className="text-lg text-gray-600 mb-4">We&apos;ve sent you an email with next steps.</p>
-          <p className="text-sm text-gray-500">You&apos;ll receive a link to continue with our AI assistant shortly.</p>
+          <p className="text-lg text-gray-600 mb-4">We've sent you an email with next steps.</p>
+          <p className="text-sm text-gray-500">You'll receive a link to continue with our AI assistant shortly.</p>
         </motion.div>
       </div>
     );
@@ -166,21 +180,32 @@ export function InteractiveForm({ onComplete, onBack }: InteractiveFormProps) {
       <div className="max-w-2xl mx-auto pt-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl text-gray-900 mb-2">OpenGig</h1>
-          <p className="text-gray-600">Tell us about your project</p>
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-4">
+            <span className="text-2xl">🚀</span>
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Gator Innovation</h1>
+          <p className="text-lg text-gray-600">Powered by OpenGig</p>
+          <p className="text-base text-gray-500">Tell us about your project</p>
         </div>
 
         {/* Progress Bar */}
         <div className="mb-8">
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
-            <span>Step {currentStep + 1} of {steps.length}</span>
-            <span>{Math.round(progress)}% complete</span>
+          <div className="flex justify-between text-sm text-gray-600 mb-3">
+            <span className="font-medium">Step {currentStep + 1} of {steps.length}</span>
+            <span className="font-medium">{Math.round(progress)}% complete</span>
           </div>
-          <Progress value={progress} className="h-2" />
+          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <motion.div
+              className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+            />
+          </div>
         </div>
 
         {/* Form Content */}
-        <Card className="p-8 shadow-lg">
+        <Card className="p-8 shadow-xl border-0 bg-white/80 backdrop-blur-sm">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentStep}
@@ -190,21 +215,21 @@ export function InteractiveForm({ onComplete, onBack }: InteractiveFormProps) {
               transition={{ duration: 0.3 }}
             >
               <div className="text-center mb-8">
-                <h2 className="text-2xl text-gray-900 mb-2">{steps[currentStep].title}</h2>
-                <p className="text-gray-600">{steps[currentStep].subtitle}</p>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-3">{steps[currentStep].title}</h2>
+                <p className="text-gray-600 text-base">{steps[currentStep].subtitle}</p>
               </div>
 
               <div className="space-y-6">
                 {steps[currentStep].fields.map((field) => (
-                  <div key={field.key} className="space-y-2">
-                    <Label htmlFor={field.key}>{field.label}</Label>
+                  <div key={field.key} className="space-y-3">
+                    <Label htmlFor={field.key} className="text-sm font-medium text-gray-700">{field.label}</Label>
                     {field.type === "input" && (
                       <Input
                         id={field.key}
                         placeholder={field.type === "input" ? (field as any).placeholder : ""}
                         value={formData[field.key as keyof FormData]}
                         onChange={(e) => updateFormData(field.key, e.target.value)}
-                        className="h-12"
+                        className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-colors"
                       />
                     )}
                     {field.type === "select" && (
@@ -212,7 +237,7 @@ export function InteractiveForm({ onComplete, onBack }: InteractiveFormProps) {
                         value={formData[field.key as keyof FormData]}
                         onValueChange={(value) => updateFormData(field.key, value)}
                       >
-                        <SelectTrigger className="h-12">
+                        <SelectTrigger className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-colors">
                           <SelectValue placeholder={`Select ${field.label.toLowerCase()}`} />
                         </SelectTrigger>
                         <SelectContent>
@@ -230,7 +255,7 @@ export function InteractiveForm({ onComplete, onBack }: InteractiveFormProps) {
                         placeholder={field.type === "textarea" ? (field as any).placeholder : ""}
                         value={formData[field.key as keyof FormData]}
                         onChange={(e) => updateFormData(field.key, e.target.value)}
-                        className="min-h-32"
+                        className="min-h-32 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-colors"
                       />
                     )}
                   </div>
@@ -244,7 +269,8 @@ export function InteractiveForm({ onComplete, onBack }: InteractiveFormProps) {
             <Button
               variant="outline"
               onClick={handleBack}
-              className="px-6"
+              className="px-6 py-3 border-gray-300 hover:bg-gray-50 transition-colors"
+              disabled={currentStep === 0}
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
@@ -252,7 +278,7 @@ export function InteractiveForm({ onComplete, onBack }: InteractiveFormProps) {
             <Button
               onClick={handleNext}
               disabled={!isStepValid()}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-200"
             >
               {currentStep === steps.length - 1 ? "Submit" : "Next"}
               <ArrowRight className="ml-2 h-4 w-4" />
