@@ -8,6 +8,7 @@ import { Badge } from "./ui/badge";
 import { Send, Bot, User, CheckCircle, AlertCircle } from "lucide-react";
 import { motion } from "motion/react";
 import { GoogleSheetsService } from "@/lib/googleSheets";
+import ProjectBrief from "./ProjectBrief";
 
 interface Message {
   id: string;
@@ -65,6 +66,7 @@ export function ChatbotPage({ formData, onFinishSession }: ChatbotPageProps) {
   const [conversationData, setConversationData] = useState<ConversationData>({});
   const [currentTopic, setCurrentTopic] = useState("targetAudience");
   const [collectedData, setCollectedData] = useState<string[]>([]);
+  const [showProjectBrief, setShowProjectBrief] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const topics = [
@@ -293,7 +295,7 @@ export function ChatbotPage({ formData, onFinishSession }: ChatbotPageProps) {
         // Conversation is complete - log project data
         await logProjectData();
         setTimeout(() => {
-          onFinishSession();
+          setShowProjectBrief(true);
         }, 2000);
       }
       
@@ -361,6 +363,23 @@ export function ChatbotPage({ formData, onFinishSession }: ChatbotPageProps) {
       console.error('Error logging project data:', error);
     }
   };
+
+  // Show ProjectBrief component when all topics are completed
+  if (showProjectBrief) {
+    const projectBriefData = {
+      targetAudience: conversationData.targetAudience || 'Not specified',
+      coreFeatures: Array.isArray(conversationData.coreFeatures) 
+        ? conversationData.coreFeatures.join(', ') 
+        : conversationData.coreFeatures || 'Not specified',
+      designUX: conversationData.designPreferences || 'Not specified',
+      platformTech: Array.isArray(conversationData.platformRequirements)
+        ? conversationData.platformRequirements.join(', ')
+        : conversationData.platformRequirements || 'Not specified',
+      successGoals: conversationData.successMetrics || 'Not specified'
+    };
+
+    return <ProjectBrief data={projectBriefData} />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">

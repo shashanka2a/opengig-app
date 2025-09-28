@@ -31,7 +31,8 @@ export default function Home() {
   };
 
   const handleChatFinish = () => {
-    setCurrentScreen("review");
+    // Chat now shows ProjectBrief directly, no need to navigate
+    // The ProjectBrief component handles the end of the user journey
   };
 
   const handleReviewSave = (data: FormData) => {
