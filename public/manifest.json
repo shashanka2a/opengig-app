@@ -1,0 +1,16 @@
+{
+  "name": "OpenGig - AI-Powered Project Briefing Platform",
+  "short_name": "OpenGig",
+  "description": "Transform your project ideas into comprehensive briefs with our AI-powered platform.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#030213",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
